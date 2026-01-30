@@ -127,12 +127,17 @@ class AuthService {
         return data;
     }
 
-    // Send OTP for signup - requires email, password, and name
-    async sendSignupOTP(email, password, name) {
+    // Send OTP for signup - requires email, password, name, and optional referral code
+    async sendSignupOTP(email, password, name, referralCode = null) {
+        const body = { email, password, name };
+        if (referralCode) {
+            body.referral_code = referralCode;
+        }
+
         const response = await fetch(`${CONFIG.API_URL}/auth/signup/send-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name })
+            body: JSON.stringify(body)
         });
 
         const data = await response.json();
@@ -145,16 +150,21 @@ class AuthService {
     }
 
     // Verify OTP and complete signup
-    async verifySignupOTP(email, otpCode, password, name) {
+    async verifySignupOTP(email, otpCode, password, name, referralCode = null) {
+        const body = {
+            email,
+            otp_code: otpCode,
+            password,
+            name
+        };
+        if (referralCode) {
+            body.referral_code = referralCode;
+        }
+
         const response = await fetch(`${CONFIG.API_URL}/auth/signup/verify-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email,
-                otp_code: otpCode,
-                password,
-                name
-            })
+            body: JSON.stringify(body)
         });
 
         const data = await response.json();

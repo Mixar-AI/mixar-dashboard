@@ -101,6 +101,17 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="referralCode" class="form-label">Referral Code <span style="color: var(--text-secondary); font-weight: 400;">(optional)</span></label>
+                    <input
+                        type="text"
+                        id="referralCode"
+                        name="referralCode"
+                        class="form-input"
+                        placeholder="Enter referral code for bonus credits"
+                    >
+                </div>
+
                 <div class="form-error" id="step1Error"></div>
 
                 <button type="submit" class="btn" id="step1Btn">
@@ -202,7 +213,7 @@
         auth.redirectIfAuthenticated();
 
         // Store form data between steps
-        let signupData = { name: '', email: '', password: '' };
+        let signupData = { name: '', email: '', password: '', referralCode: '' };
         let countdownInterval = null;
 
         // Toggle password visibility
@@ -242,6 +253,7 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const referralCode = document.getElementById('referralCode').value.trim();
 
             // Clear errors
             error.classList.remove('show');
@@ -262,14 +274,14 @@
             }
 
             // Store data
-            signupData = { name, email, password };
+            signupData = { name, email, password, referralCode };
 
             // Show loading
             btnText.textContent = 'Sending code...';
             btn.disabled = true;
 
             try {
-                await auth.sendSignupOTP(signupData.email, signupData.password, signupData.name);
+                await auth.sendSignupOTP(signupData.email, signupData.password, signupData.name, signupData.referralCode);
 
                 // Show step 2
                 document.getElementById('step1Card').style.display = 'none';
@@ -355,7 +367,8 @@
                     signupData.email,
                     otpCode,
                     signupData.password,
-                    signupData.name
+                    signupData.name,
+                    signupData.referralCode
                 );
 
                 // Show success
@@ -408,7 +421,7 @@
             error.classList.remove('show');
 
             try {
-                await auth.sendSignupOTP(signupData.email, signupData.password, signupData.name);
+                await auth.sendSignupOTP(signupData.email, signupData.password, signupData.name, signupData.referralCode);
                 startCountdown();
             } catch (err) {
                 error.textContent = err.message;
