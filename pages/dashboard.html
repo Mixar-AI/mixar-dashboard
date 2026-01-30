@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mixar</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="../index.html" class="nav-brand">
+            <img src="../assets/Logo-Primary_light.png" alt="Mixar" class="brand-logo">
+        </a>
+        <div class="user-menu">
+            <div class="user-credits" id="userCredits">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <span id="creditsCount">--</span> credits
+            </div>
+            <div class="user-avatar" id="userAvatar">--</div>
+            <button class="nav-link" onclick="auth.logout()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-container">
+        <div class="dashboard-content">
+            <!-- Loading State -->
+            <div class="loading" id="loadingState">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Dashboard Content (hidden initially) -->
+            <div id="dashboardContent" style="display: none;">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <h1 class="dashboard-title">Welcome, <span id="userName">User</span>!</h1>
+                    <p class="dashboard-subtitle">Manage your credits and view your usage history</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card highlight">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                            </div>
+                            <span class="stat-badge">Available</span>
+                        </div>
+                        <div class="stat-value" id="availableCredits">--</div>
+                        <div class="stat-label">Credits Balance</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                    <path d="M2 17l10 5 10-5"/>
+                                    <path d="M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="totalGenerations">--</div>
+                        <div class="stat-label">Total Generations</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="imagesGenerated">--</div>
+                        <div class="stat-label">Images Generated</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="modelsGenerated">--</div>
+                        <div class="stat-label">3D Models Generated</div>
+                    </div>
+                </div>
+
+                <!-- Recent Usage Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Activity</h2>
+                    </div>
+
+                    <div class="usage-table-container">
+                        <table class="usage-table" id="usageTable">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Credits Used</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usageTableBody">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+
+                        <!-- Empty State -->
+                        <div class="empty-state" id="emptyState" style="display: none;">
+                            <div class="empty-icon">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                            </div>
+                            <h3 class="empty-title">No activity yet</h3>
+                            <p class="empty-message">Start creating with Mixar to see your usage history here.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Account</h2>
+                    </div>
+
+                    <div class="account-card">
+                        <div class="account-info">
+                            <div class="account-avatar" id="accountAvatar">--</div>
+                            <div class="account-details">
+                                <h3 id="accountName">--</h3>
+                                <p id="accountEmail">--</p>
+                            </div>
+                        </div>
+                        <div class="account-actions">
+                            <button class="btn-secondary" onclick="auth.logout()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                    <polyline points="16 17 21 12 16 7"/>
+                                    <line x1="21" y1="12" x2="9" y2="12"/>
+                                </svg>
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Require authentication
+        if (!auth.requireAuth()) {
+            // Will redirect to login
+        } else {
+            // Initialize dashboard
+            initDashboard();
+        }
+
+        async function initDashboard() {
+            try {
+                // Fetch user data
+                const user = await auth.fetchUser();
+
+                if (!user) {
+                    auth.logout();
+                    return;
+                }
+
+                // Update UI with user data
+                updateUserInfo(user);
+
+                // Fetch usage data (mock for now)
+                await fetchUsageData();
+
+                // Hide loading, show content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                auth.logout();
+            }
+        }
+
+        function updateUserInfo(user) {
+            const name = user.name || user.email.split('@')[0];
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            const credits = user.credits || 0;
+
+            // Update header
+            document.getElementById('userName').textContent = name.split(' ')[0];
+            document.getElementById('creditsCount').textContent = credits;
+            document.getElementById('userAvatar').textContent = initials;
+
+            // Update stats
+            document.getElementById('availableCredits').textContent = credits;
+
+            // Update account section
+            document.getElementById('accountName').textContent = name;
+            document.getElementById('accountEmail').textContent = user.email;
+            document.getElementById('accountAvatar').textContent = initials;
+        }
+
+        async function fetchUsageData() {
+            // For now, we'll use mock data
+            // In production, this would call the API
+            const mockUsage = [
+                { type: 'Image Generation', icon: 'image', credits: 5, date: new Date(Date.now() - 86400000), status: 'completed' },
+                { type: '3D Model Generation', icon: 'cube', credits: 20, date: new Date(Date.now() - 172800000), status: 'completed' },
+                { type: 'Texture Painting', icon: 'brush', credits: 10, date: new Date(Date.now() - 259200000), status: 'completed' },
+            ];
+
+            // Update stats (mock)
+            document.getElementById('totalGenerations').textContent = mockUsage.length;
+            document.getElementById('imagesGenerated').textContent = mockUsage.filter(u => u.icon === 'image').length;
+            document.getElementById('modelsGenerated').textContent = mockUsage.filter(u => u.icon === 'cube').length;
+
+            // Update table
+            const tbody = document.getElementById('usageTableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            if (mockUsage.length === 0) {
+                tbody.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                tbody.innerHTML = mockUsage.map(item => `
+                    <tr>
+                        <td>
+                            <div class="usage-type">
+                                <div class="usage-type-icon">
+                                    ${getIcon(item.icon)}
+                                </div>
+                                <span>${item.type}</span>
+                            </div>
+                        </td>
+                        <td class="usage-credits">-${item.credits}</td>
+                        <td class="usage-date">${formatDate(item.date)}</td>
+                        <td><span class="usage-status ${item.status}">${capitalize(item.status)}</span></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function getIcon(type) {
+            const icons = {
+                image: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+                cube: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+                brush: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>'
+            };
+            return icons[type] || icons.image;
+        }
+
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / 86400000);
+
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>
