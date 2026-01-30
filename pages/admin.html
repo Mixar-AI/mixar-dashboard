@@ -127,6 +127,62 @@
                     </div>
                 </div>
 
+                <!-- Add Credits Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Add Credits to User</h2>
+                    </div>
+
+                    <div class="referral-card">
+                        <div class="referral-form">
+                            <div class="form-group">
+                                <label for="userEmail" class="form-label">User Email</label>
+                                <input
+                                    type="email"
+                                    id="userEmail"
+                                    class="form-input"
+                                    placeholder="Enter user email"
+                                    list="userEmailList"
+                                >
+                                <datalist id="userEmailList"></datalist>
+                            </div>
+                            <div class="form-group">
+                                <label for="addCreditsAmount" class="form-label">Credits</label>
+                                <input
+                                    type="number"
+                                    id="addCreditsAmount"
+                                    class="form-input"
+                                    placeholder="Amount"
+                                    min="1"
+                                    value="100"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="addCreditsReason" class="form-label">Reason</label>
+                                <input
+                                    type="text"
+                                    id="addCreditsReason"
+                                    class="form-input"
+                                    placeholder="e.g., bonus, refund"
+                                    value="admin_grant"
+                                >
+                            </div>
+                            <button class="btn-secondary" id="addCreditsBtn" onclick="addCreditsToUser()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="16"/>
+                                    <line x1="8" y1="12" x2="16" y2="12"/>
+                                </svg>
+                                Add Credits
+                            </button>
+                        </div>
+
+                        <div class="referral-result" id="addCreditsResult" style="display: none;">
+                            <span class="referral-credits" id="addCreditsMessage"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Generate Referral Section -->
                 <div class="section">
                     <div class="section-header">
@@ -221,6 +277,7 @@
         let currentPage = 1;
         const pageSize = 20;
         let totalUsers = 0;
+        let allUsers = {}; // Map of email -> user data
 
         // Check authentication and superuser status
         async function initAdmin() {
@@ -282,6 +339,17 @@
                 const data = await response.json();
                 currentPage = page;
                 totalUsers = data.total_users;
+
+                // Store users for lookup
+                data.users.forEach(user => {
+                    allUsers[user.email] = user;
+                });
+
+                // Populate email datalist for autocomplete
+                const datalist = document.getElementById('userEmailList');
+                datalist.innerHTML = Object.keys(allUsers).map(email =>
+                    `<option value="${email}">`
+                ).join('');
 
                 // Update stats
                 document.getElementById('totalUsers').textContent = totalUsers;
@@ -383,6 +451,67 @@
                     `;
                 }, 2000);
             });
+        }
+
+        async function addCreditsToUser() {
+            const email = document.getElementById('userEmail').value.trim();
+            const amount = parseInt(document.getElementById('addCreditsAmount').value);
+            const reason = document.getElementById('addCreditsReason').value.trim() || 'admin_grant';
+            const btn = document.getElementById('addCreditsBtn');
+            const resultDiv = document.getElementById('addCreditsResult');
+            const messageSpan = document.getElementById('addCreditsMessage');
+
+            if (!email) {
+                alert('Please enter a user email');
+                return;
+            }
+
+            if (!amount || amount < 1) {
+                alert('Please enter a valid credit amount');
+                return;
+            }
+
+            // Look up user by email
+            const user = allUsers[email];
+            if (!user) {
+                alert('User not found. Make sure the email is correct.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner" style="width: 18px; height: 18px;"></span> Adding...';
+
+            try {
+                const response = await auth.apiRequest(`/credits/add?user_id=${user.id}&amount=${amount}&reason=${encodeURIComponent(reason)}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to add credits');
+                }
+
+                const data = await response.json();
+
+                messageSpan.textContent = `Added ${amount} credits to ${email}`;
+                resultDiv.style.display = 'flex';
+
+                // Refresh users list to show updated credits
+                await loadUsers(currentPage);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="16"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                    Add Credits
+                `;
+            }
         }
 
         function getInitials(nameOrEmail) {
