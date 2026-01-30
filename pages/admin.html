@@ -226,6 +226,54 @@
                     </div>
                 </div>
 
+                <!-- User Activity Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Activity</h2>
+                        <div class="pagination-info" id="activityInfo"></div>
+                    </div>
+
+                    <!-- Mode Stats -->
+                    <div class="stats-grid" id="modeStats" style="margin-bottom: 1.5rem;">
+                        <!-- Will be populated dynamically -->
+                    </div>
+
+                    <div class="usage-table-container">
+                        <table class="usage-table" id="activityTable">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Mode</th>
+                                    <th>Model</th>
+                                    <th>Credits</th>
+                                    <th>Latency</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityTableBody">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+
+                        <!-- Activity Pagination -->
+                        <div class="pagination" id="activityPagination">
+                            <button class="pagination-btn" id="activityPrevBtn" onclick="loadActivity(currentActivityPage - 1)" disabled>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                                Previous
+                            </button>
+                            <span class="pagination-current" id="activityPageInfo">Page 1</span>
+                            <button class="pagination-btn" id="activityNextBtn" onclick="loadActivity(currentActivityPage + 1)">
+                                Next
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Users Table Section -->
                 <div class="section">
                     <div class="section-header">
@@ -275,8 +323,11 @@
     <script src="../js/auth.js"></script>
     <script>
         let currentPage = 1;
+        let currentActivityPage = 1;
         const pageSize = 20;
+        const activityPageSize = 25;
         let totalUsers = 0;
+        let totalActivity = 0;
         let allUsers = {}; // Map of email -> user data
 
         // Check authentication and superuser status
@@ -308,6 +359,7 @@
 
                 // Load admin data
                 await loadUsers(1);
+                await loadActivity(1);
 
                 // Hide loading, show content
                 document.getElementById('loadingState').style.display = 'none';
@@ -389,6 +441,89 @@
             } catch (error) {
                 console.error('Failed to load users:', error);
             }
+        }
+
+        async function loadActivity(page = 1) {
+            const skip = (page - 1) * activityPageSize;
+
+            try {
+                const response = await auth.apiRequest(`/admin/activity?skip=${skip}&limit=${activityPageSize}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to load activity');
+                }
+
+                const data = await response.json();
+                currentActivityPage = page;
+                totalActivity = data.total_count;
+
+                // Update mode stats
+                const modeStatsDiv = document.getElementById('modeStats');
+                const modeIcons = {
+                    'ideation': '<path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>',
+                    'texture': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+                    'ask': '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+                    'generate_3d': '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+                    'lookdev': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+                    'segment': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+                    'agent': '<path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5A2.5 2.5 0 0 0 7.5 18a2.5 2.5 0 0 0 2.5-2.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5a2.5 2.5 0 0 0 2.5 2.5a2.5 2.5 0 0 0 2.5-2.5a2.5 2.5 0 0 0-2.5-2.5z"/>'
+                };
+
+                modeStatsDiv.innerHTML = Object.entries(data.mode_stats || {}).map(([mode, count]) => `
+                    <div class="stat-card" style="padding: 1rem;">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="width: 32px; height: 32px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    ${modeIcons[mode] || modeIcons['ask']}
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" style="font-size: 1.25rem;">${count}</div>
+                        <div class="stat-label" style="font-size: 0.75rem; text-transform: capitalize;">${mode.replace('_', ' ')}</div>
+                    </div>
+                `).join('');
+
+                // Update activity table
+                const tbody = document.getElementById('activityTableBody');
+                tbody.innerHTML = data.activity.map(event => `
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar-small">${getInitials(event.user_name || event.user_email)}</div>
+                                <span class="user-name">${event.user_name || event.user_email.split('@')[0]}</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge" style="background: rgba(0, 192, 199, 0.2); color: var(--primary-cyan); text-transform: capitalize;">${event.mode.replace('_', ' ')}</span></td>
+                        <td style="color: var(--text-secondary); font-size: 0.875rem;">${event.model_name || '-'}</td>
+                        <td class="user-credits">${event.credits_used || 0}</td>
+                        <td style="color: var(--text-secondary);">${event.latency_ms ? event.latency_ms + 'ms' : '-'}</td>
+                        <td style="color: var(--text-secondary); font-size: 0.875rem;">${formatTimeAgo(event.created_at)}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No activity yet</td></tr>';
+
+                // Update pagination
+                const totalPages = Math.ceil(totalActivity / activityPageSize);
+                document.getElementById('activityPageInfo').textContent = `Page ${currentActivityPage} of ${totalPages || 1}`;
+                document.getElementById('activityInfo').textContent = totalActivity > 0 ? `${totalActivity} total events` : '';
+                document.getElementById('activityPrevBtn').disabled = currentActivityPage <= 1;
+                document.getElementById('activityNextBtn').disabled = currentActivityPage >= totalPages;
+
+            } catch (error) {
+                console.error('Failed to load activity:', error);
+            }
+        }
+
+        function formatTimeAgo(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+            return date.toLocaleDateString();
         }
 
         async function generateReferral() {
