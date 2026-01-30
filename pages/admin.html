@@ -7,6 +7,111 @@
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .modal-content {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 90%;
+        }
+        /* Usage Log Item */
+        .usage-log-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .usage-log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .usage-log-meta {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .usage-log-prompt {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-family: monospace;
+            font-size: 0.8125rem;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .usage-log-prompt:empty::before {
+            content: 'No prompt recorded';
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        /* Activity row with prompt */
+        .activity-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .activity-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .activity-prompt {
+            display: none;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .activity-prompt.expanded {
+            display: table-row;
+        }
+        .prompt-cell {
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .view-logs-btn {
+            background: rgba(0, 192, 199, 0.1);
+            border: 1px solid rgba(0, 192, 199, 0.3);
+            color: var(--primary-cyan);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .view-logs-btn:hover {
+            background: rgba(0, 192, 199, 0.2);
+        }
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -290,6 +395,7 @@
                                     <th>Credits</th>
                                     <th>Generations</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody">
@@ -319,13 +425,82 @@
         </div>
     </main>
 
+    <!-- User Usage Modal -->
+    <div id="userUsageModal" class="modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeUserUsageModal()"></div>
+        <div class="modal-content" style="max-width: 900px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <div>
+                    <h2 class="modal-title" id="modalUserName" style="margin: 0;">User Usage Logs</h2>
+                    <p class="modal-subtitle" id="modalUserEmail" style="margin: 0.25rem 0 0; color: var(--text-secondary); font-size: 0.875rem;"></p>
+                </div>
+                <button onclick="closeUserUsageModal()" style="background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- User Stats -->
+            <div class="modal-stats" style="display: flex; gap: 1rem; padding: 1rem 1.5rem; background: rgba(0,0,0,0.2); flex-wrap: wrap;">
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div id="modalTotalCredits" style="font-size: 1.25rem; font-weight: 600; color: var(--primary-green);">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Credits Used</div>
+                </div>
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div id="modalTotalEvents" style="font-size: 1.25rem; font-weight: 600; color: var(--primary-cyan);">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Total Events</div>
+                </div>
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div id="modalInputTokens" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Input Tokens</div>
+                </div>
+                <div style="text-align: center; flex: 1; min-width: 80px;">
+                    <div id="modalOutputTokens" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Output Tokens</div>
+                </div>
+            </div>
+
+            <!-- Mode Filter -->
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <select id="modeFilter" onchange="loadUserUsage(currentModalUserId, 1)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem 1rem; color: var(--text-primary); font-size: 0.875rem;">
+                    <option value="">All Modes</option>
+                    <option value="ideation">Ideation</option>
+                    <option value="texture">Texture</option>
+                    <option value="ask">Ask</option>
+                    <option value="generate_3d">Generate 3D</option>
+                    <option value="lookdev">Lookdev</option>
+                    <option value="segment">Segment</option>
+                    <option value="agent">Agent</option>
+                </select>
+            </div>
+
+            <!-- Usage List -->
+            <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 0;">
+                <div id="userUsageList" style="padding: 1rem;">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Modal Pagination -->
+            <div class="modal-footer" style="padding: 1rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 1rem;">
+                <button class="pagination-btn" id="modalPrevBtn" onclick="loadUserUsage(currentModalUserId, currentModalPage - 1)" disabled>Previous</button>
+                <span id="modalPageInfo" style="color: var(--text-secondary); font-size: 0.875rem;">Page 1</span>
+                <button class="pagination-btn" id="modalNextBtn" onclick="loadUserUsage(currentModalUserId, currentModalPage + 1)">Next</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/config.js"></script>
     <script src="../js/auth.js"></script>
     <script>
         let currentPage = 1;
         let currentActivityPage = 1;
+        let currentModalPage = 1;
+        let currentModalUserId = null;
         const pageSize = 20;
         const activityPageSize = 25;
+        const modalPageSize = 20;
         let totalUsers = 0;
         let totalActivity = 0;
         let allUsers = {}; // Map of email -> user data
@@ -428,6 +603,14 @@
                                 ${user.is_active ? 'Active' : 'Inactive'}
                             </span>
                         </td>
+                        <td>
+                            <button class="view-logs-btn" onclick="openUserUsageModal('${user.id}', '${user.name || ''}', '${user.email}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                                View Logs
+                            </button>
+                        </td>
                     </tr>
                 `).join('');
 
@@ -485,8 +668,8 @@
 
                 // Update activity table
                 const tbody = document.getElementById('activityTableBody');
-                tbody.innerHTML = data.activity.map(event => `
-                    <tr>
+                tbody.innerHTML = data.activity.map((event, idx) => `
+                    <tr class="activity-row" onclick="toggleActivityPrompt(${idx})">
                         <td>
                             <div class="user-info">
                                 <div class="user-avatar-small">${getInitials(event.user_name || event.user_email)}</div>
@@ -497,8 +680,12 @@
                         <td style="color: var(--text-secondary); font-size: 0.875rem;">${event.model_name || '-'}</td>
                         <td class="user-credits">${event.credits_used || 0}</td>
                         <td style="color: var(--text-secondary);">${event.latency_ms ? event.latency_ms + 'ms' : '-'}</td>
-                        <td style="color: var(--text-secondary); font-size: 0.875rem;">${formatTimeAgo(event.created_at)}</td>
+                        <td style="color: var(--text-secondary); font-size: 0.875rem;">
+                            ${formatTimeAgo(event.created_at)}
+                            ${event.prompt ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px; vertical-align: middle;"><polyline points="6 9 12 15 18 9"/></svg>' : ''}
+                        </td>
                     </tr>
+                    ${event.prompt ? `<tr class="activity-prompt" id="prompt-${idx}"><td colspan="6" class="prompt-cell"><strong>Prompt:</strong><br>${escapeHtml(event.prompt)}</td></tr>` : ''}
                 `).join('') || '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No activity yet</td></tr>';
 
                 // Update pagination
@@ -653,6 +840,109 @@
             const name = nameOrEmail.includes('@') ? nameOrEmail.split('@')[0] : nameOrEmail;
             return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
         }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleActivityPrompt(idx) {
+            const promptRow = document.getElementById(`prompt-${idx}`);
+            if (promptRow) {
+                promptRow.classList.toggle('expanded');
+            }
+        }
+
+        function openUserUsageModal(userId, userName, userEmail) {
+            currentModalUserId = userId;
+            currentModalPage = 1;
+            document.getElementById('modalUserName').textContent = userName || 'User Usage Logs';
+            document.getElementById('modalUserEmail').textContent = userEmail;
+            document.getElementById('modeFilter').value = '';
+            document.getElementById('userUsageModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            loadUserUsage(userId, 1);
+        }
+
+        function closeUserUsageModal() {
+            document.getElementById('userUsageModal').style.display = 'none';
+            document.body.style.overflow = '';
+            currentModalUserId = null;
+        }
+
+        async function loadUserUsage(userId, page = 1) {
+            const skip = (page - 1) * modalPageSize;
+            const mode = document.getElementById('modeFilter').value;
+            const modeParam = mode ? `&mode=${mode}` : '';
+
+            try {
+                const response = await auth.apiRequest(`/admin/user/${userId}/usage?skip=${skip}&limit=${modalPageSize}${modeParam}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to load user usage');
+                }
+
+                const data = await response.json();
+                currentModalPage = page;
+
+                // Update stats
+                document.getElementById('modalTotalCredits').textContent = data.totals.credits_used.toLocaleString();
+                document.getElementById('modalTotalEvents').textContent = data.total_count.toLocaleString();
+                document.getElementById('modalInputTokens').textContent = data.totals.input_tokens.toLocaleString();
+                document.getElementById('modalOutputTokens').textContent = data.totals.output_tokens.toLocaleString();
+
+                // Update usage list
+                const listDiv = document.getElementById('userUsageList');
+                if (data.usage.length === 0) {
+                    listDiv.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">No usage logs found</div>';
+                } else {
+                    listDiv.innerHTML = data.usage.map(item => `
+                        <div class="usage-log-item">
+                            <div class="usage-log-header">
+                                <div>
+                                    <span class="status-badge" style="background: rgba(0, 192, 199, 0.2); color: var(--primary-cyan); text-transform: capitalize;">${item.mode.replace('_', ' ')}</span>
+                                    <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: 0.5rem;">${item.model_name || ''}</span>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 0.75rem;">${formatTimeAgo(item.created_at)}</div>
+                            </div>
+                            <div class="usage-log-meta">
+                                <span><strong>${item.credits_used || 0}</strong> credits</span>
+                                ${item.input_tokens ? `<span><strong>${item.input_tokens}</strong> input tokens</span>` : ''}
+                                ${item.output_tokens ? `<span><strong>${item.output_tokens}</strong> output tokens</span>` : ''}
+                                ${item.latency_ms ? `<span><strong>${item.latency_ms}</strong>ms latency</span>` : ''}
+                                ${item.generation_status ? `<span class="status-badge ${item.generation_status === 'completed' ? 'active' : 'inactive'}">${item.generation_status}</span>` : ''}
+                            </div>
+                            ${item.prompt ? `<div class="usage-log-prompt" style="margin-top: 0.75rem;">${escapeHtml(item.prompt)}</div>` : ''}
+                            ${item.parameters && Object.keys(item.parameters).length > 0 ? `
+                                <details style="margin-top: 0.5rem;">
+                                    <summary style="cursor: pointer; color: var(--text-secondary); font-size: 0.75rem;">Parameters</summary>
+                                    <pre style="background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 6px; font-size: 0.75rem; overflow-x: auto; margin-top: 0.5rem;">${escapeHtml(JSON.stringify(item.parameters, null, 2))}</pre>
+                                </details>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+
+                // Update pagination
+                const totalPages = Math.ceil(data.total_count / modalPageSize);
+                document.getElementById('modalPageInfo').textContent = `Page ${currentModalPage} of ${totalPages || 1}`;
+                document.getElementById('modalPrevBtn').disabled = currentModalPage <= 1;
+                document.getElementById('modalNextBtn').disabled = currentModalPage >= totalPages;
+
+            } catch (error) {
+                console.error('Failed to load user usage:', error);
+                document.getElementById('userUsageList').innerHTML = '<div style="text-align: center; color: var(--error-color); padding: 2rem;">Failed to load usage logs</div>';
+            }
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeUserUsageModal();
+            }
+        });
 
         // Initialize
         initAdmin();
