@@ -15,6 +15,12 @@
             <img src="../assets/Logo-Primary_light.png" alt="Mixar" class="brand-logo">
         </a>
         <div class="user-menu">
+            <a href="admin.html" class="nav-link admin-link" id="adminLink" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Admin
+            </a>
             <div class="user-credits" id="userCredits">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
@@ -217,6 +223,11 @@
             document.getElementById('userName').textContent = name.split(' ')[0];
             document.getElementById('creditsCount').textContent = credits;
             document.getElementById('userAvatar').textContent = initials;
+
+            // Show admin link if superuser
+            if (user.is_superuser) {
+                document.getElementById('adminLink').style.display = 'flex';
+            }
 
             // Update stats
             document.getElementById('availableCredits').textContent = credits;

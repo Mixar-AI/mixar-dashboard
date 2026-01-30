@@ -299,6 +299,19 @@
     to { transform: rotate(360deg); }
 }
 
+/* Admin Link */
+.admin-link {
+    background: rgba(133, 196, 73, 0.1) !important;
+    border-color: rgba(133, 196, 73, 0.3) !important;
+    color: var(--primary-green) !important;
+}
+
+.admin-link:hover {
+    background: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
+    color: var(--bg-dark) !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .dashboard-title { font-size: 2rem; }

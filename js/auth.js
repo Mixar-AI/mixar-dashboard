@@ -202,6 +202,23 @@ class AuthService {
         return true;
     }
 
+    // Check if current user is a superuser
+    isSuperuser() {
+        return this.user?.is_superuser === true;
+    }
+
+    // Require superuser - redirect if not superuser
+    requireSuperuser() {
+        if (!this.requireAuth()) {
+            return false;
+        }
+        if (!this.isSuperuser()) {
+            window.location.href = CONFIG.ROUTES.DASHBOARD;
+            return false;
+        }
+        return true;
+    }
+
     // Redirect if already authenticated
     redirectIfAuthenticated() {
         if (this.isAuthenticated()) {

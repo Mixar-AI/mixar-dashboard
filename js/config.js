@@ -13,6 +13,7 @@ const CONFIG = {
         LOGIN: '/pages/login.html',
         SIGNUP: '/pages/signup.html',
         DASHBOARD: '/pages/dashboard.html',
+        ADMIN: '/pages/admin.html',
         HOME: '/index.html'
     }
 };
