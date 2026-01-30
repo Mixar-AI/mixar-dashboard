@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signing in... - Mixar</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="../index.html" class="nav-brand">
+            <img src="../assets/Logo-Primary_light.png" alt="Mixar" class="brand-logo">
+        </a>
+    </nav>
+
+    <!-- Callback Container -->
+    <main class="page-container">
+        <div class="card" id="loadingCard">
+            <div style="text-align: center; padding: 2rem 0;">
+                <div class="spinner" style="margin: 0 auto 1.5rem;"></div>
+                <h2 class="card-title">Signing you in...</h2>
+                <p class="card-subtitle">Please wait while we complete your Google sign-in.</p>
+            </div>
+        </div>
+
+        <div class="card" id="errorCard" style="display: none;">
+            <div style="text-align: center;">
+                <div style="width: 60px; height: 60px; margin: 0 auto 1.5rem; border-radius: 50%; background: rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Sign-in Failed</h2>
+                <p class="card-subtitle" id="errorMessage">An error occurred during sign-in.</p>
+                <a href="login.html" class="btn" style="margin-top: 1.5rem; display: inline-flex;">
+                    <span class="btn-text">Try Again</span>
+                    <span class="btn-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Handle Google OAuth callback
+        async function handleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showError('Google sign-in was cancelled or denied.');
+                return;
+            }
+
+            if (!code) {
+                showError('No authorization code received from Google.');
+                return;
+            }
+
+            try {
+                await auth.handleGoogleCallback(code);
+                // Success - redirect to dashboard
+                window.location.href = CONFIG.ROUTES.DASHBOARD;
+            } catch (err) {
+                showError(err.message || 'Failed to complete Google sign-in.');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loadingCard').style.display = 'none';
+            document.getElementById('errorCard').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // Start callback handling
+        handleCallback();
+    </script>
+</body>
+</html>

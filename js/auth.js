@@ -127,18 +127,18 @@ class AuthService {
         return data;
     }
 
-    // Send OTP for signup
-    async sendSignupOTP(email) {
+    // Send OTP for signup - requires email, password, and name
+    async sendSignupOTP(email, password, name) {
         const response = await fetch(`${CONFIG.API_URL}/auth/signup/send-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({ email, password, name })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.detail?.message || data.detail || 'Failed to send OTP');
+            throw new Error(data.detail?.message || data.detail || data.message || 'Failed to send OTP');
         }
 
         return data;
@@ -209,6 +209,43 @@ class AuthService {
             return true;
         }
         return false;
+    }
+
+    // Initiate Google OAuth login
+    async loginWithGoogle() {
+        try {
+            const response = await fetch(`${CONFIG.API_URL}/auth/login/google`);
+            const data = await response.json();
+
+            if (data.url) {
+                // Redirect to Google OAuth
+                window.location.href = data.url;
+            } else {
+                throw new Error('Failed to get Google login URL');
+            }
+        } catch (error) {
+            console.error('Google login initiation failed:', error);
+            throw error;
+        }
+    }
+
+    // Handle Google OAuth callback
+    async handleGoogleCallback(code) {
+        const response = await fetch(`${CONFIG.API_URL}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail?.message || data.detail || 'Google authentication failed');
+        }
+
+        this.setTokens(data.access_token, data.refresh_token);
+        await this.fetchUser();
+        return data;
     }
 }
 
