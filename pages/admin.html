@@ -390,6 +390,7 @@
                         <table class="usage-table" id="usersTable">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>User</th>
                                     <th>Email</th>
                                     <th>Credits</th>
@@ -588,6 +589,7 @@
                 const tbody = document.getElementById('usersTableBody');
                 tbody.innerHTML = data.users.map(user => `
                     <tr>
+                        <td class="user-no">${user.user_no || '-'}</td>
                         <td>
                             <div class="user-info">
                                 <div class="user-avatar-small">${getInitials(user.name || user.email)}</div>
@@ -673,7 +675,7 @@
                         <td>
                             <div class="user-info">
                                 <div class="user-avatar-small">${getInitials(event.user_name || event.user_email)}</div>
-                                <span class="user-name">${event.user_name || event.user_email.split('@')[0]}</span>
+                                <span class="user-name">${event.user_no ? '#' + event.user_no + ' ' : ''}${event.user_name || event.user_email.split('@')[0]}</span>
                             </div>
                         </td>
                         <td><span class="status-badge" style="background: rgba(0, 192, 199, 0.2); color: var(--primary-cyan); text-transform: capitalize;">${event.mode.replace('_', ' ')}</span></td>
