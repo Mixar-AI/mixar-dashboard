@@ -1,7 +1,7 @@
 // Mixar Dashboard Configuration
 const CONFIG = {
-    // API Base URL - change this for production
-    API_URL: 'http://localhost:8000/api/v1',
+    // API Base URL - use relative path for nginx proxy
+    API_URL: '/api/v1',
 
     // Token storage keys
     ACCESS_TOKEN_KEY: 'mixar_access_token',
