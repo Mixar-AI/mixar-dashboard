@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Mixar Dashboard</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=1770114447">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -371,12 +371,11 @@
                     signupData.referralCode
                 );
 
-                // Show success
-                document.getElementById('step2Card').style.display = 'none';
-                document.getElementById('successCard').style.display = 'block';
-
                 // Clear countdown
                 if (countdownInterval) clearInterval(countdownInterval);
+
+                // Redirect to download page
+                window.location.href = CONFIG.ROUTES.DOWNLOAD;
             } catch (err) {
                 error.textContent = err.message;
                 error.classList.add('show');

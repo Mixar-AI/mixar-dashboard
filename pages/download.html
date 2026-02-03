@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Mixar - AI Native 3D Editor</title>
+    <link rel="stylesheet" href="../css/styles.css?v=1770114447">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .download-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 2rem;
+        }
+
+        .download-card {
+            width: 100%;
+            max-width: 600px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            animation: fadeUp 0.6s ease forwards;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease forwards;
+        }
+
+        .download-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .download-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .platform-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .platform-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--primary-cyan);
+            transform: translateY(-4px);
+        }
+
+        .platform-icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .platform-icon svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--text-primary);
+        }
+
+        .platform-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .platform-version {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-green) 100%);
+            border: none;
+            border-radius: 100px;
+            color: var(--bg-dark);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(0, 192, 199, 0.4);
+        }
+
+        .coming-soon {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .system-requirements {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .requirements-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .requirements-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .requirements-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .requirements-list li svg {
+            flex-shrink: 0;
+            color: var(--primary-green);
+        }
+
+        .dashboard-link {
+            margin-top: 2rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .dashboard-link a {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .dashboard-link a:hover {
+            color: var(--primary-green);
+        }
+
+        @media (max-width: 600px) {
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .download-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .download-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="../index.html" class="nav-brand">
+            <img src="../assets/Logo-Primary_light.png" alt="Mixar" class="brand-logo">
+        </a>
+        <div class="nav-links" id="navLinks">
+            <a href="dashboard.html" class="nav-link">
+                <span>Dashboard</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Download Container -->
+    <main class="download-container">
+        <div class="download-card">
+            <div class="success-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3">
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+            </div>
+
+            <h1 class="download-title">Welcome to Mixar!</h1>
+            <p class="download-subtitle">Download Mixar for your platform to start creating with AI</p>
+
+            <div class="platform-grid">
+                <!-- Windows -->
+                <div class="platform-card" id="windowsCard">
+                    <div class="platform-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+                        </svg>
+                    </div>
+                    <span class="platform-name">Windows</span>
+                    <span class="platform-version">Windows 10/11 (64-bit)</span>
+                    <button class="download-btn" onclick="downloadWindows()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+
+                <!-- macOS -->
+                <div class="platform-card" id="macCard">
+                    <div class="platform-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                        </svg>
+                    </div>
+                    <span class="platform-name">macOS</span>
+                    <span class="platform-version">macOS 12+ (Apple Silicon & Intel)</span>
+                    <button class="download-btn" onclick="downloadMac()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+            </div>
+
+            <div class="system-requirements">
+                <h3 class="requirements-title">System Requirements</h3>
+                <ul class="requirements-list">
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        8GB RAM minimum (16GB recommended)
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Dedicated GPU with 4GB VRAM
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        5GB available storage space
+                    </li>
+                    <li>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Internet connection for AI features
+                    </li>
+                </ul>
+            </div>
+
+            <p class="dashboard-link">
+                Or continue to your <a href="dashboard.html">Dashboard</a> to manage your account
+            </p>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Update nav based on auth state
+        if (!auth.isAuthenticated()) {
+            document.getElementById('navLinks').innerHTML = `
+                <a href="login.html" class="nav-link">
+                    <span>Login</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            `;
+        }
+
+        function downloadWindows() {
+            // Placeholder - redirect to actual download URL
+            const downloadUrl = 'https://mixar.app/downloads/mixar-windows-latest.exe';
+            alert('Windows download coming soon!\n\nThe download will be available at:\n' + downloadUrl);
+            // window.location.href = downloadUrl;
+        }
+
+        function downloadMac() {
+            // Placeholder - redirect to actual download URL
+            const downloadUrl = 'https://mixar.app/downloads/mixar-macos-latest.dmg';
+            alert('macOS download coming soon!\n\nThe download will be available at:\n' + downloadUrl);
+            // window.location.href = downloadUrl;
+        }
+
+        // Auto-detect platform and highlight
+        const platform = navigator.platform.toLowerCase();
+        if (platform.includes('win')) {
+            document.getElementById('windowsCard').style.borderColor = 'var(--primary-cyan)';
+            document.getElementById('windowsCard').style.background = 'rgba(0, 192, 199, 0.05)';
+        } else if (platform.includes('mac')) {
+            document.getElementById('macCard').style.borderColor = 'var(--primary-cyan)';
+            document.getElementById('macCard').style.background = 'rgba(0, 192, 199, 0.05)';
+        }
+    </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 // Mixar Dashboard Configuration
 const CONFIG = {
     // API Base URL - change this for production
-    API_URL: 'http://localhost:8000/api/v1',
+    API_URL: 'https://beta.mixar.app/api/v1',
 
     // Token storage keys
     ACCESS_TOKEN_KEY: 'mixar_access_token',
@@ -13,6 +13,7 @@ const CONFIG = {
         LOGIN: '/pages/login.html',
         SIGNUP: '/pages/signup.html',
         DASHBOARD: '/pages/dashboard.html',
+        DOWNLOAD: '/pages/download.html',
         ADMIN: '/pages/admin.html',
         HOME: '/index.html'
     }
