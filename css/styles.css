@@ -40,7 +40,7 @@ body {
     align-items: center;
     padding: 1.5rem 3rem;
     z-index: 100;
-    background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.8) 100%);
+    background: linear-gradient(180deg, rgba(10, 10, 10, 0.2) 0%, rgba(10, 10, 10, 0.2) 100%);
     backdrop-filter: blur(10px);
 }
 
